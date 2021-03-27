@@ -64,8 +64,34 @@ Bird.prototype.flyUp = function() {
     this.unDraw();
     this.y -= 1;
     this.draw();
+
+}
+
+Bird.prototype.floatDown = function() {
+    this.unDraw();
+    this.y += 1;
+    this.draw();
+}
+
+let dropTime = Date.now();
+let gameOver = false;
+
+function fall() {
+    let now = Date.now();
+    let delta = now - dropTime;
+    if (delta > 40) {
+        bird.floatDown();
+        dropTime = Date.now();
+    }
+    if (!gameOver) {
+        requestAnimationFrame(fall);
+    }
 }
 
 ctv.addEventListener("click", function() {
-    bird.flyUp();
+    for (f=0; f<10; f++) {
+        bird.flyUp();
+    }
 })
+
+fall();
