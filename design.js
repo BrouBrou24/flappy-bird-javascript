@@ -59,3 +59,13 @@ Bird.prototype.unDraw = function() {
         }
     }
 }
+
+Bird.prototype.flyUp = function() {
+    this.unDraw();
+    this.y -= 1;
+    this.draw();
+}
+
+ctv.addEventListener("click", function() {
+    bird.flyUp();
+})
