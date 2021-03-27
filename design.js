@@ -4,6 +4,8 @@ const COL = 60;
 const EMPTY = "white";
 const ctv = document.getElementById("gameBoard");
 const ctx = ctv.getContext("2d");
+const BIRD = "red"
+
 
 let board = [];
 //create board
@@ -32,3 +34,20 @@ function drawBoard() {
 }
 
 drawBoard();
+
+function Bird() {
+    this.color = BIRD;
+    this.x = 30;
+    this.y = 30;
+}
+
+Bird.prototype.draw = function() {
+    for (x=0; x<5; x++) {
+        for (y=0; y<5; y++) {
+            drawSquare(this.x+x, this.y+y, BIRD)
+        }
+    }
+}
+
+let bird = new Bird();
+bird.draw();
