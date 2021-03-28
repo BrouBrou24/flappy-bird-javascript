@@ -39,6 +39,7 @@ function Bird() {
     this.color = BIRD;
     this.x = 30;
     this.y = 30;
+    this.count = 0
 }
 
 Bird.prototype.draw = function() {
@@ -60,11 +61,13 @@ Bird.prototype.unDraw = function() {
     }
 }
 
-Bird.prototype.flyUp = function() {
-    this.unDraw();
-    this.y -= 1;
-    this.draw();
-
+Bird.prototype.floatUp = function() {
+    if (this.count<10) {
+        this.unDraw();
+        this.y -= 1;
+        this.draw();
+        this.count += 1;
+    }
 }
 
 Bird.prototype.floatDown = function() {
@@ -73,25 +76,35 @@ Bird.prototype.floatDown = function() {
     this.draw();
 }
 
-let dropTime = Date.now();
+let time = Date.now();
 let gameOver = false;
+let flying = false;
 
 function fall() {
-    let now = Date.now();
-    let delta = now - dropTime;
-    if (delta > 40) {
-        bird.floatDown();
-        dropTime = Date.now();
-    }
-    if (!gameOver) {
-        requestAnimationFrame(fall);
+    if (!flying) {
+        let now = Date.now();
+        let delta = now - time;
+        if (delta > 30) {
+            bird.floatDown();
+            time = Date.now();
+        }
+        if (!gameOver) {
+            requestAnimationFrame(fall);
+        }
     }
 }
 
+function flap() {
+    flying = true;
+    setInterval(() => {
+        bird.floatUp();
+    }, 12);
+    bird.count = 0;
+    flying = false;
+}
+
 ctv.addEventListener("click", function() {
-    for (f=0; f<10; f++) {
-        bird.flyUp();
-    }
+    flap();
 })
 
 fall();
