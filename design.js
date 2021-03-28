@@ -5,6 +5,7 @@ const EMPTY = "white";
 const ctv = document.getElementById("gameBoard");
 const ctx = ctv.getContext("2d");
 const BIRD = "red"
+const OBS = "green"
 
 
 let board = [];
@@ -102,6 +103,48 @@ function flap() {
     bird.count = 0;
     flying = false;
 }
+
+function Obstacle() {
+    this.x = COL-3;
+    this.y = ROW;
+    this.obsY = 0
+    this.body = []
+}
+
+Obstacle.prototype.draw = function() {
+    let orientation = Math.floor(Math.random() * 2) + 1;
+    this.obsY = Math.floor(Math.random() * 20) + 15;
+    if (orientation == 1) {
+        for (x=0; x<4; x++) {
+            for (y=0; y<this.obsY; y++) {
+                drawSquare(this.x+x, this.y-y, OBS)
+                this.body.unshift([this.x+x, this.y-y])
+            }
+        }
+    }
+    else {
+        for (x=0; x<4; x++) {
+            for (y=0; y<this.obsY; y++) {
+                drawSquare(this.x+x, y, OBS)
+                this.body.unshift([this.x+x, y])
+        }
+            }
+    }
+}
+
+Obstacle.prototype.unDraw = function () {
+    while (this.body.length>0) {
+        drawSquare(this.body[0][0], this.body[0][1], EMPTY);
+        this.body.shift();
+    }
+}
+
+Obstacle.prototype.move = function() {
+
+}
+
+let obstacle = new Obstacle();
+obstacle.draw();
 
 ctv.addEventListener("click", function() {
     flap();
