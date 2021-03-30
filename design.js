@@ -38,9 +38,11 @@ drawBoard();
 
 function Bird() {
     this.color = BIRD;
-    this.x = 30;
+    this.x = 10;
     this.y = 30;
-    this.count = 0
+    this.count = 0;
+    this.obsY = 0;
+    this.orientation = 0;
 }
 
 Bird.prototype.draw = function() {
@@ -82,26 +84,22 @@ let gameOver = false;
 let flying = false;
 
 function fall() {
-    if (!flying) {
-        let now = Date.now();
-        let delta = now - time;
-        if (delta > 30) {
-            bird.floatDown();
-            time = Date.now();
-        }
-        if (!gameOver) {
-            requestAnimationFrame(fall);
-        }
+    let now = Date.now();
+    let delta = now - time;
+    if (delta > 30) {
+        bird.floatDown();
+        time = Date.now();
+    }
+    if (!gameOver) {
+        requestAnimationFrame(fall);
     }
 }
 
 function flap() {
-    flying = true;
     setInterval(() => {
         bird.floatUp();
     }, 12);
     bird.count = 0;
-    flying = false;
 }
 
 function Obstacle() {
@@ -112,13 +110,13 @@ function Obstacle() {
 }
 
 Obstacle.prototype.draw = function() {
-    let orientation = Math.floor(Math.random() * 2) + 1;
-    this.obsY = Math.floor(Math.random() * 20) + 15;
-    if (orientation == 1) {
+    this.orientation = Math.floor(Math.random() * 2) + 1;
+    this.obsY = Math.floor(Math.random() * 20) + 10;
+    if (this.orientation == 1) {
         for (x=0; x<4; x++) {
             for (y=0; y<this.obsY; y++) {
-                drawSquare(this.x+x, this.y-y, OBS)
-                this.body.unshift([this.x+x, this.y-y])
+                drawSquare(this.x+x, this.y-y, OBS);
+                this.body.unshift([this.x+x, this.y-y]);
             }
         }
     }
@@ -127,27 +125,57 @@ Obstacle.prototype.draw = function() {
             for (y=0; y<this.obsY; y++) {
                 drawSquare(this.x+x, y, OBS)
                 this.body.unshift([this.x+x, y])
-        }
             }
+        }
     }
 }
 
 Obstacle.prototype.unDraw = function () {
     while (this.body.length>0) {
         drawSquare(this.body[0][0], this.body[0][1], EMPTY);
-        this.body.shift();
+        this.body.shift(this.body[0][0], this.body[0][1]);
     }
 }
 
 Obstacle.prototype.move = function() {
-
+    this.unDraw();
+    this.x -= 1;
+    if (this.orientation == 1) {
+        for (x=0; x<3; x++) {
+            for (y=0; y<this.obsY; y++) {
+                drawSquare(this.x+x, this.y-y, OBS);
+                this.body.unshift([this.x+x, this.y-y])
+            }
+        }
+    }
+    else {
+        for (x=0; x<3; x++) {
+            for (y=0; y<this.obsY; y++) {
+                drawSquare(this.x+x, y, OBS);
+                this.body.unshift([this.x+x, y])
+            }
+        }
+    }
 }
 
-let obstacle = new Obstacle();
-obstacle.draw();
+obstacles = []
+
+setInterval(function() {
+    let newObs = new Obstacle();
+    newObs.draw();
+    obstacles.push(newObs);
+}, 1000);
+
+setInterval(function() {
+    for (i=0; i<obstacles.length; i++) {
+        obstacles[i].move();
+        console.log(obstacles[i]);
+    }
+}, 50);
 
 ctv.addEventListener("click", function() {
     flap();
+    fall();
 })
 
-fall();
+
