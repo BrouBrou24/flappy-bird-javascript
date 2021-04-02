@@ -149,12 +149,17 @@ Obstacle.prototype.unDraw = function () {
     }
 }
 
+let score = 0
+let points = document.getElementById("totalScore")
+
+
 Obstacle.prototype.move = function() {
     this.unDraw();
     this.x -= 1;
     if (this.x < -3) {
-        console.log(obstacles);
         obstacles.shift();
+        score += 10;
+        points.innerHTML = ("Score: " + score);
     }
     else {
         if (this.orientation == 1) {
