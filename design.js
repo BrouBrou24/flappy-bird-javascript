@@ -45,7 +45,8 @@ function Bird() {
     this.orientation = 0;
 }
 
-let birdBody = []
+let birdBody = [];
+let obstacles = [];
 
 Bird.prototype.draw = function() {
     for (x=0; x<5; x++) {
@@ -74,10 +75,6 @@ Bird.prototype.floatUp = function() {
         this.y -= 1;
         this.draw();
         this.count += 1;
-        if (collision()) {
-            alert("gameover!");
-            window.stop();
-        }
     }
 }
 
@@ -85,10 +82,6 @@ Bird.prototype.floatDown = function() {
     this.unDraw();
     this.y += 1;
     this.draw();
-    if (collision()) {
-        alert("gameover!");
-        window.stop();
-    }
 }
 
 let time = Date.now();
@@ -156,25 +149,31 @@ let points = document.getElementById("totalScore")
 Obstacle.prototype.move = function() {
     this.unDraw();
     this.x -= 1;
-    if (this.x < -3) {
-        obstacles.shift();
-        score += 10;
-        points.innerHTML = ("Score: " + score);
+    if (collision()) {
+        alert("gameover!");
+        window.stop();
     }
     else {
-        if (this.orientation == 1) {
-            for (x=0; x<3; x++) {
-                for (y=0; y<this.obsY; y++) {
-                    drawSquare(this.x+x, this.y-y, OBS);
-                    this.body.unshift([this.x+x, this.y-y])
-                }
-            }
+        if (this.x < -3) {
+            obstacles.shift();
+            score += 10;
+            points.innerHTML = ("Score: " + score);
         }
         else {
-            for (x=0; x<3; x++) {
-                for (y=0; y<this.obsY; y++) {
-                    drawSquare(this.x+x, y, OBS);
-                    this.body.unshift([this.x+x, y])
+            if (this.orientation == 1) {
+                for (x=0; x<3; x++) {
+                    for (y=0; y<this.obsY; y++) {
+                        drawSquare(this.x+x, this.y-y, OBS);
+                        this.body.unshift([this.x+x, this.y-y])
+                    }
+                }
+            }
+            else {
+                for (x=0; x<3; x++) {
+                    for (y=0; y<this.obsY; y++) {
+                        drawSquare(this.x+x, y, OBS);
+                        this.body.unshift([this.x+x, y])
+                    }
                 }
             }
         }
@@ -185,7 +184,7 @@ function collision() {
     for (o=0; o<obstacles.length; o++) {
         for (s=0; s<obstacles[o].body.length; s++) {
             for (b=0; b<birdBody.length; b++) {
-                if (JSON.stringify(obstacles[o].body[s]) == JSON.stringify(birdBody[b])) {
+                if (JSON.stringify(obstacles[o].body[s]) == JSON.stringify(birdBody[b]) || (bird.y < 5) || (bird.y > ROW-5)) {
                     return true;
                 }
             }
@@ -193,9 +192,6 @@ function collision() {
     }
     return false;
 }
-
-
-obstacles = []
 
 setInterval(function() {
     let newObs = new Obstacle();
