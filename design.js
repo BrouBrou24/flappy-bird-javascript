@@ -45,10 +45,13 @@ function Bird() {
     this.orientation = 0;
 }
 
+let birdBody = []
+
 Bird.prototype.draw = function() {
     for (x=0; x<5; x++) {
         for (y=0; y<5; y++) {
-            drawSquare(this.x+x, this.y+y, BIRD)
+            drawSquare(this.x+x, this.y+y, BIRD);
+            birdBody.push([this.x+x, this.y+y]);
         }
     }
 }
@@ -59,7 +62,8 @@ bird.draw();
 Bird.prototype.unDraw = function() {
     for (x=0; x<5; x++) {
         for (y=0; y<5; y++) {
-            drawSquare(this.x+x, this.y+y, EMPTY)
+            drawSquare(this.x+x, this.y+y, EMPTY);
+            birdBody.shift([this.x+x, this.y+y]);
         }
     }
 }
@@ -70,6 +74,10 @@ Bird.prototype.floatUp = function() {
         this.y -= 1;
         this.draw();
         this.count += 1;
+        if (collision()) {
+            alert("gameover!");
+            window.stop();
+        }
     }
 }
 
@@ -77,6 +85,10 @@ Bird.prototype.floatDown = function() {
     this.unDraw();
     this.y += 1;
     this.draw();
+    if (collision()) {
+        alert("gameover!");
+        window.stop();
+    }
 }
 
 let time = Date.now();
@@ -111,7 +123,7 @@ function Obstacle() {
 
 Obstacle.prototype.draw = function() {
     this.orientation = Math.floor(Math.random() * 2) + 1;
-    this.obsY = Math.floor(Math.random() * 20) + 10;
+    this.obsY = Math.floor(Math.random() * 20) + 15;
     if (this.orientation == 1) {
         for (x=0; x<4; x++) {
             for (y=0; y<this.obsY; y++) {
@@ -140,23 +152,43 @@ Obstacle.prototype.unDraw = function () {
 Obstacle.prototype.move = function() {
     this.unDraw();
     this.x -= 1;
-    if (this.orientation == 1) {
-        for (x=0; x<3; x++) {
-            for (y=0; y<this.obsY; y++) {
-                drawSquare(this.x+x, this.y-y, OBS);
-                this.body.unshift([this.x+x, this.y-y])
-            }
-        }
+    if (this.x < -3) {
+        console.log(obstacles);
+        obstacles.shift();
     }
     else {
-        for (x=0; x<3; x++) {
-            for (y=0; y<this.obsY; y++) {
-                drawSquare(this.x+x, y, OBS);
-                this.body.unshift([this.x+x, y])
+        if (this.orientation == 1) {
+            for (x=0; x<3; x++) {
+                for (y=0; y<this.obsY; y++) {
+                    drawSquare(this.x+x, this.y-y, OBS);
+                    this.body.unshift([this.x+x, this.y-y])
+                }
+            }
+        }
+        else {
+            for (x=0; x<3; x++) {
+                for (y=0; y<this.obsY; y++) {
+                    drawSquare(this.x+x, y, OBS);
+                    this.body.unshift([this.x+x, y])
+                }
             }
         }
     }
 }
+
+function collision() {
+    for (o=0; o<obstacles.length; o++) {
+        for (s=0; s<obstacles[o].body.length; s++) {
+            for (b=0; b<birdBody.length; b++) {
+                if (JSON.stringify(obstacles[o].body[s]) == JSON.stringify(birdBody[b])) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
 
 obstacles = []
 
@@ -169,7 +201,6 @@ setInterval(function() {
 setInterval(function() {
     for (i=0; i<obstacles.length; i++) {
         obstacles[i].move();
-        console.log(obstacles[i]);
     }
 }, 50);
 
